@@ -100,5 +100,5 @@ jobs:
 
       - name: Create Git Tag
         run: |
-          git tag ${{ env.tag }}
-          git push origin ${{ env.tag }}
+          git tag -f ${{ env.tag }}
+          git push origin --force ${{ env.tag }}
