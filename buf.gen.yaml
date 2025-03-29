@@ -15,9 +15,9 @@ plugins:
   - remote: buf.build/grpc/go
     out: gen/go
     opt: [paths=source_relative]
-  - local: protoc-gen-prost
+  - remote: buf.build/community/neoeinstein-prost
     out: gen/rust
-  - local: protoc-gen-tonic
+  - remote: buf.build/community/neoeinstein-tonic
     out: gen/rust
   - remote: buf.build/bufbuild/es
     out: gen/ts
