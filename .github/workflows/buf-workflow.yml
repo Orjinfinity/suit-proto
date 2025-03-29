@@ -63,11 +63,11 @@ jobs:
         with:
           name: generated-code
           path: downloaded-gen
-      
-       - name: Merge downloaded generated code into gen/
-         run: |
-           mkdir -p gen
-           cp -r downloaded-gen/* gen/
+
+      - name: Merge downloaded generated code into gen/
+        run: |
+          mkdir -p gen
+          cp -r downloaded-gen/* gen/
 
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
