@@ -1,15 +1,58 @@
-name: Publish Go + Rust SDKs
+name: Buf CI Pipeline
 
 on:
-  workflow_run:
-    workflows: ["Buf Generate"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  generate-and-tag:
+  lint-breaking:
+    name: Buf Lint & Breaking
     runs-on: ubuntu-latest
-    name: Generate, Bump Version and Create Tag
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Buf CLI
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Buf Lint
+        run: buf lint
+
+      - name: Buf Breaking
+        run: buf breaking --against '.git#branch=main'
+
+  generate:
+    name: Buf Generate Code
+    runs-on: ubuntu-latest
+    needs: lint-breaking
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Buf CLI
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate Code
+        run: buf generate
+
+      - name: Upload generated code
+        uses: actions/upload-artifact@a1fbd6d62b78583c2cfc365d3b6e664e256f318e
+        with:
+          name: generated-code
+          path: |
+            gen/go
+            gen/rust
+            gen/ts
+            gen/grpc-web
+
+  publish:
+    name: Publish & Git Tag
+    runs-on: ubuntu-latest
+    needs: generate
 
     steps:
       - name: Checkout code
@@ -21,7 +64,7 @@ jobs:
       - name: Set up Rust
         uses: actions/setup-rust@v1
 
-      - name: Install Rust proto plugins (prost + tonic)
+      - name: Install Rust proto plugins
         run: |
           cargo install protoc-gen-prost protoc-gen-tonic
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
