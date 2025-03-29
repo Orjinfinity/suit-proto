@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package projectsuit.example.v1;
-
-message Ping {
-  string message = 1;
-}
