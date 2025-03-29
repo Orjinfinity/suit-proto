@@ -6,13 +6,19 @@ on:
       - main
 
 jobs:
-  version-and-tag:
+  generate-and-tag:
     runs-on: ubuntu-latest
-    name: Bump version and create tag
+    name: Generate, Bump Version and Create Tag
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Buf CLI
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate Code (Go, Rust, TS, gRPC-Web)
+        run: buf generate
 
       - name: Set up Git
         run: |
@@ -28,13 +34,13 @@ jobs:
           echo "$new_version" > VERSION
           echo "tag=$new_version" >> $GITHUB_ENV
 
-      - name: Commit version file
+      - name: Commit generated files and version
         run: |
-          git add VERSION
-          git commit -m "chore: bump version ${{ env.tag }}"
+          git add gen/ VERSION
+          git commit -m "chore: buf generate & version ${{ env.tag }}"
           git push origin main
 
-      - name: Create tag
+      - name: Create Git Tag
         run: |
           git tag ${{ env.tag }}
           git push origin ${{ env.tag }}
