@@ -1,0 +1,32 @@
+name: Buf Generate
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  generate-code:
+    runs-on: ubuntu-latest
+    name: Buf Generate for Go, Rust, TS, gRPC-Web
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Buf CLI
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate Code
+        run: buf generate
+
+      - name: Upload generated code as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-code
+          path: |
+            gen/go
+            gen/rust
+            gen/ts
+            gen/grpc-web
