@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@74d7c6c096f2e6a23f4937d5e9d49c059969b2d7
+        uses: actions/checkout@v4
 
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
@@ -31,24 +31,24 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@74d7c6c096f2e6a23f4937d5e9d49c059969b2d7
+        uses: actions/checkout@v4
 
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
 
-      - name: Set up Rust
-        uses: actions/setup-rust@f8e6a1d29d59abfd4f48d8a13a9c7c00c7328e97
+    #   - name: Set up Rust
+    #     uses: raftario/setup-rust-action@v1
 
-      - name: Install Rust proto plugins
-        run: |
-          cargo install protoc-gen-prost protoc-gen-tonic
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    #   - name: Install Rust proto plugins
+    #     run: |
+    #       cargo install protoc-gen-prost protoc-gen-tonic
+    #       echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Generate Code
         run: buf generate
 
       - name: Upload generated code
-        uses: actions/upload-artifact@66b47f6b30bdf41129c2b03d3fa7fda9c89c6819
+        uses: actions/upload-artifact@v4
         with:
           name: generated-code
           path: |
@@ -64,13 +64,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@74d7c6c096f2e6a23f4937d5e9d49c059969b2d7
+        uses: actions/checkout@v4
 
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
 
       - name: Set up Rust
-        uses: actions/setup-rust@f8e6a1d29d59abfd4f48d8a13a9c7c00c7328e97
+        uses: actions/setup-rust@v2
 
       - name: Install Rust proto plugins
         run: |
