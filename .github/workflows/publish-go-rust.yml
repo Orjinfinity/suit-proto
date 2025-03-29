@@ -1,0 +1,40 @@
+name: Publish Go + Rust SDKs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  version-and-tag:
+    runs-on: ubuntu-latest
+    name: Bump version and create tag
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Bump version (patch)
+        run: |
+          version=$(git tag --sort=-v:refname | head -n 1 | sed 's/v//')
+          IFS='.' read -r major minor patch <<< "${version:-0.1.0}"
+          new_version="v$major.$minor.$((patch + 1))"
+          echo "New version: $new_version"
+          echo "$new_version" > VERSION
+          echo "tag=$new_version" >> $GITHUB_ENV
+
+      - name: Commit version file
+        run: |
+          git add VERSION
+          git commit -m "chore: bump version ${{ env.tag }}"
+          git push origin main
+
+      - name: Create tag
+        run: |
+          git tag ${{ env.tag }}
+          git push origin ${{ env.tag }}
