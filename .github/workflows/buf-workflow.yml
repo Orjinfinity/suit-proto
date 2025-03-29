@@ -40,7 +40,7 @@ jobs:
         run: buf generate
 
       - name: Upload generated code
-        uses: actions/upload-artifact@a1fbd6d62b78583c2cfc365d3b6e664e256f318e
+        uses: actions/upload-artifact@v3
         with:
           name: generated-code
           path: |
