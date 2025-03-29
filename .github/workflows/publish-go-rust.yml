@@ -28,6 +28,17 @@ jobs:
       - name: Generate Code (Go, Rust, TS, gRPC-Web)
         run: buf generate
 
+      - name: Debug generated output
+        run: |
+          echo "=== gen/go ==="
+          ls -R gen/go || echo "no go code"
+          echo "=== gen/rust ==="
+          ls -R gen/rust || echo "no rust code"
+          echo "=== gen/ts ==="
+          ls -R gen/ts || echo "no ts code"
+          echo "=== gen/grpc-web ==="
+          ls -R gen/grpc-web || echo "no grpc-web code"
+
       - name: Set up Git
         run: |
           git config user.name "github-actions"
@@ -45,7 +56,7 @@ jobs:
       - name: Commit generated files and version
         run: |
           git add gen/ VERSION
-          git commit -m "chore: buf generate & version ${{ env.tag }}"
+          git diff --quiet && echo "No changes to commit." || git commit -m "chore: buf generate & version ${{ env.tag }}"
           git push origin main
 
       - name: Create Git Tag
