@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package projectsuit.product.v1;
+
+
+import "projectsuit/common/v1/money_v1.proto";
+import "projectsuit/common/v1/translation_v1.proto";
+
+message ProductPrice {
+  string unit_id = 1;
+  common.v1.Money price = 2;
+  string region = 3;
+}
+
+enum ProductType {
+  PRODUCT_TYPE_UNSPECIFIED = 0;
+  PRODUCT_TYPE_SIMPLE = 1;
+  PRODUCT_TYPE_VARIANT = 2;
+  PRODUCT_TYPE_RECIPE = 3;
+  PRODUCT_TYPE_SERVICE = 4;
+}
+
+message ProductVariant {
+  string id = 1;
+  string name = 2;
+  map<string, string> attributes = 3;
+  repeated ProductPrice prices = 4;
+}
+
+message ProductInput {
+  string sku = 1;
+  string barcode = 2;
+  string category_id = 3;
+  common.v1.Translation name = 4;
+  common.v1.Translation description = 5;
+  repeated ProductPrice prices = 6;
+  ProductType type = 7;
+  repeated ProductVariant variants = 8;
+  repeated string recipe_ids = 9;
+  repeated string image_urls = 10;
+  bool track_inventory = 11;
+  bool allow_out_of_stock_sale = 12;
+}
+
+message ProductView {
+  string id = 1;
+  common.v1.Translation name = 2;
+  common.v1.Translation description = 3;
+  double price = 4;
+  bool is_active = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}

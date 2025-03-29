@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package projectsuit.category.v1;
+
+
+import "projectsuit/common/v1/translation_v1.proto";
+
+message CategoryInput {
+  string name = 1;
+  string description = 2;
+  repeated common.v1.Translation translations = 3;
+}
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated common.v1.Translation translations = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message CategoryView {
+  string id = 1;
+  string parent_id = 2;
+  common.v1.Translation name = 3;
+  common.v1.Translation description = 4;
+  string image_url = 5;
+  bool is_active = 6;
+  int64 created_at = 7;
+  int64 updated_at = 8;
+}

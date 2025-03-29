@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package projectsuit.menu.v1;
+
+
+import "projectsuit/product/v1/product_common_v1.proto";
+import "projectsuit/common/v1/translation_v1.proto";
+
+message GetMenuRequest {
+  string id = 1;
+}
+
+message MenuSectionView {
+  string title = 1;
+  repeated product.v1.ProductView products = 2;
+}
+
+message MenuView {
+  string id = 1;
+  common.v1.Translation name = 2;
+  repeated MenuSectionView sections = 3;
+  bool is_active = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+}
+
+message GetMenuResponse {
+  MenuView menu = 1;
+}
+
+message ListMenusRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListMenusResponse {
+  repeated MenuView items = 1;
+  int32 total = 2;
+}
+
+service MenuQueryService {
+  rpc GetMenu(GetMenuRequest) returns (GetMenuResponse);
+  rpc ListMenus(ListMenusRequest) returns (ListMenusResponse);
+}

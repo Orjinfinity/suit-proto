@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package projectsuit.product.v1;
+
+
+import "projectsuit/product/v1/product_common_v1.proto";
+
+service ProductCommandService {
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {}
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse) {}
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {}
+}
+
+message CreateProductRequest {
+  product.v1.ProductInput product = 1;
+}
+
+message CreateProductResponse {
+  string id = 1;
+}
+
+message UpdateProductRequest {
+  string id = 1;
+  product.v1.ProductInput product = 2;
+}
+
+message UpdateProductResponse {
+  bool success = 1;
+}
+
+message DeleteProductRequest {
+  string id = 1;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+}

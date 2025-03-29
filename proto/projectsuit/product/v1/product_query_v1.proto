@@ -1,0 +1,42 @@
+
+syntax = "proto3";
+
+package projectsuit.product.v1;
+
+
+import "projectsuit/product/v1/product_common_v1.proto";
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message GetProductResponse {
+  ProductView product = 1;
+}
+
+message ListProductsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListProductsResponse {
+  repeated ProductView items = 1;
+  int32 total = 2;
+}
+
+message SearchProductsRequest {
+  string keyword = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
+
+message SearchProductsResponse {
+  repeated ProductView items = 1;
+  int32 total = 2;
+}
+
+service ProductQueryService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse);
+}

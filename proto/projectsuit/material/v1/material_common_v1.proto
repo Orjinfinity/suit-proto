@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package projectsuit.material.v1;
+
+
+import "projectsuit/common/v1/money_v1.proto";
+import "projectsuit/common/v1/translation_v1.proto";
+
+message Material {
+  string id = 1;
+  common.v1.Translation name = 2;
+  string unit = 3;
+  common.v1.Money cost = 4;
+  bool is_active = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}
+
+message MaterialInput {
+  common.v1.Translation name = 1;
+  string unit = 2;
+  common.v1.Money cost = 3;
+  bool is_active = 4;
+}
+
+message MaterialView {
+  string id = 1;
+  common.v1.Translation name = 2;
+  string unit = 3;
+  common.v1.Money cost = 4;
+  bool is_active = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+}
