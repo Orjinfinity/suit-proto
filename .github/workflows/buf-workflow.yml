@@ -1,4 +1,4 @@
-name: Buf CI Pipeline
+name: Buf CI Pipeline1
 
 on:
   push:
