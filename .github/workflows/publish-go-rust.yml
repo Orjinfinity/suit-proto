@@ -17,6 +17,14 @@ jobs:
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
 
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+
+      - name: Install Rust proto plugins (prost + tonic)
+        run: |
+          cargo install protoc-gen-prost protoc-gen-tonic
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
       - name: Generate Code (Go, Rust, TS, gRPC-Web)
         run: buf generate
 
