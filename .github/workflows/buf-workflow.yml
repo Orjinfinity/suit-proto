@@ -50,11 +50,15 @@ jobs:
       - name: Generate Code
         run: make generate
 
-      - name: Upload generated code
+      - name: Upload generated code and dependencies
         uses: actions/upload-artifact@v4
         with:
           name: generated-code
-          path: gen
+          path: |
+            gen/
+            Cargo.toml
+            go.mod
+            go.sum
 
   publish:
     name: Publish & Git Tag
@@ -71,12 +75,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: generated-code
-          path: downloaded-gen
+          path: downloaded-artifacts
 
-      - name: Merge downloaded generated code into gen/
+      - name: Move files to correct locations
         run: |
+          # Gen klasörünü taşı
           mkdir -p gen
-          cp -r downloaded-gen/* gen/
+          cp -r downloaded-artifacts/gen/* gen/
+          
+          # Kök dizin dosyalarını taşı
+          cp downloaded-artifacts/Cargo.toml ./
+          cp downloaded-artifacts/go.mod ./
+          cp downloaded-artifacts/go.sum ./
+          
+          # Geçici dizini temizle
+          rm -rf downloaded-artifacts
 
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
@@ -85,13 +98,10 @@ jobs:
         run: |
           # Zip oluştur
           zip -r generated-code.zip gen/ Cargo.toml go.mod go.sum VERSION
-
-      - name: Debug Archive Contents
-        run: |
+          
+          # Debug için içeriği kontrol et
           echo "=== Zip içeriği ==="
           unzip -l generated-code.zip
-          echo "=== Mevcut Dosyalar ==="
-          ls -la
 
       - name: Set up Git
         run: |
@@ -105,13 +115,6 @@ jobs:
           echo "Detected tag: $tag_name"
           echo "$tag_name" > VERSION
           echo "tag=$tag_name" >> $GITHUB_ENV
-
-      - name: Commit generated files and version
-        run: |
-          git add . VERSION
-          git commit -m "chore: buf generate & version ${{ env.tag }}" || echo "No commit needed"
-          current_branch=$(git rev-parse --abbrev-ref HEAD)
-          git push origin "$current_branch"
 
       - name: Create Git Tag
         run: |
@@ -130,3 +133,7 @@ jobs:
             VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup
+        run: |
+          rm -f generated-code.zip
