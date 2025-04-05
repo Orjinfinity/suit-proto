@@ -48,14 +48,29 @@ jobs:
         uses: bufbuild/buf-setup-action@v1
 
       - name: Generate Code
-        run: make generate
+        run: |
+          # Make generate çalıştır
+          make generate
+          
+          # Dosyaların varlığını kontrol et
+          echo "=== Generated files check ==="
+          ls -la gen/
+          
+          # Cargo.toml ve go.mod dosyalarının varlığını kontrol et
+          if [ ! -f "Cargo.toml" ] || [ ! -f "go.mod" ] || [ ! -f "go.sum" ]; then
+            echo "Warning: Some dependency files are missing"
+            # Eğer scripts klasöründe varsa kopyala
+            [ -f "scripts/Cargo.toml" ] && cp scripts/Cargo.toml ./
+            [ -f "scripts/go.mod" ] && cp scripts/go.mod ./
+            [ -f "scripts/go.sum" ] && cp scripts/go.sum ./
+          fi
 
       - name: Upload generated code and dependencies
         uses: actions/upload-artifact@v4
         with:
           name: generated-code
           path: |
-            gen/
+            gen/**/*
             Cargo.toml
             go.mod
             go.sum
@@ -79,23 +94,48 @@ jobs:
 
       - name: Move files to correct locations
         run: |
-          # Gen klasörünü taşı
-          mkdir -p gen
-          cp -r downloaded-artifacts/gen/* gen/
+          echo "=== Before moving files ==="
+          ls -la downloaded-artifacts/
           
-          # Kök dizin dosyalarını taşı
-          cp downloaded-artifacts/Cargo.toml ./
-          cp downloaded-artifacts/go.mod ./
-          cp downloaded-artifacts/go.sum ./
+          # Gen klasörünü taşı
+          rm -rf gen
+          mv downloaded-artifacts/gen ./
+          
+          # Kök dizin dosyalarını taşı (hata kontrolü ile)
+          for file in Cargo.toml go.mod go.sum; do
+            if [ -f "downloaded-artifacts/$file" ]; then
+              mv "downloaded-artifacts/$file" ./
+              echo "Moved $file successfully"
+            else
+              echo "Warning: $file not found in artifacts"
+            fi
+          done
           
           # Geçici dizini temizle
           rm -rf downloaded-artifacts
+          
+          echo "=== After moving files ==="
+          ls -la
 
-      - name: Set up Buf CLI
-        uses: bufbuild/buf-setup-action@v1
+      - name: Extract tag from branch name
+        run: |
+          branch_name=${GITHUB_REF##*/}
+          tag_name="v${branch_name#release/}"
+          echo "Detected tag: $tag_name"
+          echo "$tag_name" > VERSION
+          echo "tag=$tag_name" >> $GITHUB_ENV
 
       - name: Prepare Release Assets
         run: |
+          # Dosyaların varlığını kontrol et
+          for file in gen/ Cargo.toml go.mod go.sum VERSION; do
+            if [ -e "$file" ]; then
+              echo "$file exists"
+            else
+              echo "Warning: $file is missing"
+            fi
+          done
+          
           # Zip oluştur
           zip -r generated-code.zip gen/ Cargo.toml go.mod go.sum VERSION
           
@@ -103,21 +143,10 @@ jobs:
           echo "=== Zip içeriği ==="
           unzip -l generated-code.zip
 
-      - name: Set up Git
+      - name: Create Git Tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-      - name: Extract tag from branch name
-        run: |
-          branch_name=${GITHUB_REF##*/}
-          tag_name="v${branch_name#v}"
-          echo "Detected tag: $tag_name"
-          echo "$tag_name" > VERSION
-          echo "tag=$tag_name" >> $GITHUB_ENV
-
-      - name: Create Git Tag
-        run: |
           git tag -f ${{ env.tag }}
           git push origin --force ${{ env.tag }}
 
@@ -135,5 +164,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cleanup
+        if: always()
         run: |
           rm -f generated-code.zip
