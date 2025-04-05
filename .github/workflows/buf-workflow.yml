@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   lint-breaking:
     name: Buf Lint & Breaking
@@ -37,7 +40,7 @@ jobs:
         uses: bufbuild/buf-setup-action@v1
 
       - name: Generate Code
-        run: buf generate
+        run: make generate
 
       - name: Upload generated code
         uses: actions/upload-artifact@v4
@@ -98,8 +101,13 @@ jobs:
           git add gen/ VERSION
           git commit -m "chore: buf generate & version ${{ env.tag }}" || echo "No commit needed"
           git push origin main
-
+  
       - name: Create Git Tag
         run: |
           git tag -f ${{ env.tag }}
           git push origin --force ${{ env.tag }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag }}

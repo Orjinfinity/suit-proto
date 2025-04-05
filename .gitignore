@@ -1,0 +1,35 @@
+# === BUF ===
+# Buf cache
+.buf/
+
+# === RUST ===
+# Rust build artifacts
+target/
+Cargo.lock
+
+# === GO ===
+# Go mod cache (go.sum bazen istenmez, ama çoğunlukla commitlenir)
+*.test
+*.out
+
+# === NODE/TS (eğer ts/gen kullanılıyorsa) ===
+node_modules/
+dist/
+build/
+
+# === GENERAL ===
+.DS_Store
+*.log
+*.tmp
+*.swp
+
+# === IDE'ler ===
+.idea/
+.vscode/
+*.code-workspace
+
+# === TEMP ===
+tmp/
+temp/
+.env
+.env.*
