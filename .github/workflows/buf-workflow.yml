@@ -1,4 +1,4 @@
-name: Buf CI Pipeline1
+name: Buf CI Pipeline
 
 on:
   push:
@@ -107,11 +107,11 @@ jobs:
 
       - name: Commit generated files and version
         run: |
-          git add gen/ VERSION
+          git add . VERSION
           git commit -m "chore: buf generate & version ${{ env.tag }}" || echo "No commit needed"
           current_branch=$(git rev-parse --abbrev-ref HEAD)
           git push origin "$current_branch"
-  
+
       - name: Create Git Tag
         run: |
           git tag -f ${{ env.tag }}
