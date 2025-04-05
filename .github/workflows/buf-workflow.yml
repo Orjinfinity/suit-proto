@@ -27,7 +27,11 @@ jobs:
         run: buf lint
 
       - name: Buf Breaking
-        run: buf breaking --against "https://github.com/orjinfinity/suit-proto.git#branch=main"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUTHED_URL="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/orjinfinity/suit-proto.git"
+          buf breaking --against "$AUTHED_URL#branch=main"
 
   generate:
     name: Buf Generate Code
