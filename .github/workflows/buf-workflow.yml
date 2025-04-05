@@ -27,7 +27,7 @@ jobs:
         run: buf lint
 
       - name: Buf Breaking
-        run: buf breaking --against '.git#branch=main'
+        run: buf breaking --against "https://github.com/orjinfinity/suit-proto.git#branch=main"
 
   generate:
     name: Buf Generate Code
