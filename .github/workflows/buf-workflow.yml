@@ -81,16 +81,17 @@ jobs:
       - name: Set up Buf CLI
         uses: bufbuild/buf-setup-action@v1
 
-      - name: Debug generated output
+      - name: Prepare Release Assets
         run: |
-          echo "=== gen/go ==="
-          ls -R gen/go || echo "no go code"
-          echo "=== gen/rust ==="
-          ls -R gen/rust || echo "no rust code"
-          echo "=== gen/ts ==="
-          ls -R gen/ts || echo "no ts code"
-          echo "=== gen/grpc-web ==="
-          ls -R gen/grpc-web || echo "no grpc-web code"
+          # Zip oluştur
+          zip -r generated-code.zip gen/ Cargo.toml go.mod go.sum VERSION
+
+      - name: Debug Archive Contents
+        run: |
+          echo "=== Zip içeriği ==="
+          unzip -l generated-code.zip
+          echo "=== Mevcut Dosyalar ==="
+          ls -la
 
       - name: Set up Git
         run: |
@@ -100,7 +101,7 @@ jobs:
       - name: Extract tag from branch name
         run: |
           branch_name=${GITHUB_REF##*/}
-          tag_name="v${branch_name#v}"  # release/v0.1.0 → v0.1.0
+          tag_name="v${branch_name#v}"
           echo "Detected tag: $tag_name"
           echo "$tag_name" > VERSION
           echo "tag=$tag_name" >> $GITHUB_ENV
@@ -121,3 +122,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.tag }}
+          files: |
+            generated-code.zip
+            Cargo.toml
+            go.mod
+            go.sum
+            VERSION
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
