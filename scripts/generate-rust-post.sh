@@ -6,35 +6,51 @@ echo "🔧 [post-generate] Rust lib.rs ve Cargo.toml oluşturuluyor..."
 
 cd gen/rust
 
-# Boş lib.rs başlat
 echo "// Auto-generated lib.rs" > lib.rs
+echo "pub mod projectsuit {" >> lib.rs
 
-# Tüm .rs dosyalarını işle (lib.rs hariç)
+# Önce modül yapısını oluştur
+declare -A modules
 for file in *.rs; do
   [[ "$file" == "lib.rs" ]] && continue
 
-  # örnek: projectsuit.category.v1.rs -> ["projectsuit", "category", "v1"]
-  IFS='.' read -ra parts <<< "${file%.rs}"
-
-  # include satırını en son yazacağız
-  include_line="include!(\"$file\");"
-
-  # iç içe pub mod blokları oluştur
-  indent=""
-  for part in "${parts[@]}"; do
-    echo "${indent}pub mod $part {" >> lib.rs
-    indent+="  "
-  done
-
-  # include satırı
-  echo "${indent}$include_line" >> lib.rs
-
-  # blokları kapat
-  for ((idx=${#parts[@]}-1; idx>=0; idx--)); do
-    indent="${indent:0:-2}"
-    echo "${indent}}" >> lib.rs
-  done
+  name="${file%.rs}"
+  parts=(${name//./ })
+  
+  module="${parts[1]}"
+  version="${parts[2]}"
+  is_tonic=false
+  [[ "${parts[3]}" == "tonic" ]] && is_tonic=true
+  
+  if [[ ! ${modules[$module]} ]]; then
+    modules[$module]="$version"
+  fi
 done
+
+# Modülleri yaz
+for module in $(printf "%s\n" "${!modules[@]}" | sort); do
+  echo "  pub mod $module {" >> lib.rs
+  echo "    pub mod ${modules[$module]} {" >> lib.rs
+  
+  # Normal dosyayı ekle
+  base_file="projectsuit.$module.${modules[$module]}.rs"
+  if [[ -f $base_file ]]; then
+    echo "      include!(\"$base_file\");" >> lib.rs
+  fi
+  
+  # Tonic dosyasını ekle
+  tonic_file="projectsuit.$module.${modules[$module]}.tonic.rs"
+  if [[ -f $tonic_file ]]; then
+    echo "      pub mod tonic {" >> lib.rs
+    echo "        include!(\"$tonic_file\");" >> lib.rs
+    echo "      }" >> lib.rs
+  fi
+  
+  echo "    }" >> lib.rs
+  echo "  }" >> lib.rs
+done
+
+echo "}" >> lib.rs
 
 cd ../../
 
