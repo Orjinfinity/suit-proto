@@ -105,16 +105,30 @@ jobs:
           echo "version=v$RELEASE_VERSION" >> $GITHUB_ENV
           
           # Artifact dosyalarını yerleştir
+          echo "=== Mevcut artifacts içeriği ==="
+          ls -la artifacts/
+          
+          # Gen klasörünü taşı
           rm -rf gen/
           mv artifacts/gen ./
-          mv artifacts/Cargo.toml ./
-          mv artifacts/go.mod ./
-          mv artifacts/go.sum ./
-          mv artifacts/Cargo.toml ./
-          mv artifacts/go.mod ./
-          mv artifacts/go.sum ./
+          
+          # Bağımlılık dosyalarını taşı
+          for file in Cargo.toml go.mod go.sum; do
+            if [ -f "artifacts/$file" ]; then
+              mv "artifacts/$file" ./
+              echo "Moved $file successfully"
+            else
+              echo "Warning: $file not found in artifacts"
+              exit 1
+            fi
+          done
+          
+          # Geçici dizini temizle
           rm -rf artifacts
-
+          
+          echo "=== Final dizin içeriği ==="
+          ls -la
+          
           # Release paketi oluştur
           zip -r generated-code.zip gen/ Cargo.toml go.mod go.sum VERSION
           
