@@ -169,19 +169,17 @@ jobs:
             - Go bağımlılıkları (`go.mod`, `go.sum`)
             
             ### Kullanım
-            #### Seçenek 1: Zip kullanarak
+            #### Seçenek 1: Zip ile tüm kodları almak için
             1. `generated-code.zip` dosyasını indirin
             2. İçindeki dosyaları projenize ekleyin
             
-            #### Seçenek 2: Git üzerinden
+            #### Seçenek 2: Paket yöneticileri ile
             ```bash
             # Rust için
-            git checkout ${{ env.version }}
-            cp Cargo.toml your-project/
+            cargo add --git https://github.com/orjinfinity/suit-proto.git --tag ${{ env.version }}
             
             # Go için
-            git checkout ${{ env.version }}
-            cp go.mod go.sum your-project/
+            go get github.com/orjinfinity/suit-proto@${{ env.version }}
             ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
