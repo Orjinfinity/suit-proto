@@ -131,17 +131,24 @@ jobs:
           
           # Release paketi oluştur
           zip -r generated-code.zip gen/ Cargo.toml go.mod go.sum VERSION
-          
-          # Kontrol
-          echo "=== Release içeriği ==="
-          unzip -l generated-code.zip
 
-      - name: Create Git Tag
+      - name: Commit dependency files
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag -f ${{ env.version }}
-          git push origin --force ${{ env.version }}
+          
+          # Değişiklikleri commit'le
+          git add VERSION Cargo.toml go.mod go.sum
+          git commit -m "chore: update dependencies for version ${{ env.version }}"
+          
+          # Tag oluştur
+          git tag -a ${{ env.version }} -m "Release ${{ env.version }}"
+          
+          # Önce tag'i push et
+          git push origin ${{ env.version }}
+          
+          # Sonra branch'i push et
+          git push origin HEAD:${GITHUB_REF}
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -150,17 +157,32 @@ jobs:
           files: |
             generated-code.zip
             VERSION
+            Cargo.toml
+            go.mod
+            go.sum
           body: |
             ## Proto Release ${{ env.version }}
             
             ### İçerik
-            - Generated Protobuf kodları
-            - Rust ve Go bağımlılıkları
+            - Generated Protobuf kodları (`generated-code.zip`)
+            - Rust bağımlılıkları (`Cargo.toml`)
+            - Go bağımlılıkları (`go.mod`, `go.sum`)
             
             ### Kullanım
-            1. Release'i indirin
-            2. `generated-code.zip` dosyasını açın
-            3. İlgili dil için gerekli dosyaları projenize ekleyin
+            #### Seçenek 1: Zip kullanarak
+            1. `generated-code.zip` dosyasını indirin
+            2. İçindeki dosyaları projenize ekleyin
+            
+            #### Seçenek 2: Git üzerinden
+            ```bash
+            # Rust için
+            git checkout ${{ env.version }}
+            cp Cargo.toml your-project/
+            
+            # Go için
+            git checkout ${{ env.version }}
+            cp go.mod go.sum your-project/
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
