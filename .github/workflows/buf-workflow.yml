@@ -110,6 +110,10 @@ jobs:
           mv artifacts/Cargo.toml ./
           mv artifacts/go.mod ./
           mv artifacts/go.sum ./
+          mv artifacts/VERSION ./
+          mv artifacts/Cargo.toml ./
+          mv artifacts/go.mod ./
+          mv artifacts/go.sum ./
           rm -rf artifacts
 
           # Release paketi oluştur
